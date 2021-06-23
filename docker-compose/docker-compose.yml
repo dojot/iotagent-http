@@ -641,7 +641,6 @@ services:
       CERT_SC_CERTS_FILES_KEY: iotagent-http.key
       CERT_SC_CERTS_FILES_CRL: ca.crl
       CERT_SC_CRON_CRL_TIME: "0 */1 * * * *"
-      # CERT_SC_CERTS_FILES_CABUNDLE: cabundle.crt
     volumes:
       - iotagent-http-cert-side-volume:/certs
     restart: always
