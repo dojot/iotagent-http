@@ -1,0 +1,21 @@
+{
+  "name": "iotagent-http",
+  "version": "1.0.0",
+  "description": "IotAgent to receive messages via http and publish to dojot",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dojot",
+    "iotagent",
+    "http"
+  ],
+  "author": "Gilmaicor",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@dojot/iotagent-nodejs": "^2.1.0",
+    "express": "^4.17.1"
+  }
+}
