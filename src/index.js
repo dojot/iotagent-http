@@ -156,7 +156,7 @@ iotAgent
         clearInterval(interval);
       } catch (err) {
         attempts++;
-        if (attempts > config.reload_certificates_attempts)
+        if (attempts > config.reload_certificates.attempts)
           clearInterval(interval);
       }
     };
@@ -165,7 +165,7 @@ iotAgent
       console.log(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
-      }, config.reload_certificates_interval);
+      }, config.reload_certificates.interval);
     });
 
     const httpsServer = https.createServer(

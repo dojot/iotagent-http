@@ -61,8 +61,8 @@ These are the environment variables used by iotagent-http
 | HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path          | `<project-path>`/certs/ca.crt            |
 | HTTP_TLS_CRL_CERT            | HTTP TLS **certificate revocation list** path    | `<project-path>`/certs/ca.crl            |
 | RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                                       |
-| HTTP_CERT_DIRECTORY          | HTTP TLS **certificate revocation list** path    | `<project-path>`/certs                   |
 | RELOAD_CERTIFICATES_INTERVAL | interval for reattempting to reload certificates | 1000                                     |
+| HTTP_CERT_DIRECTORY          | HTTP TLS **certificate revocation list** path    | `<project-path>`/certs                   |
 
 ## Notes
 
