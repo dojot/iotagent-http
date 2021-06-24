@@ -165,7 +165,7 @@ iotAgent
       console.log(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
-      }, 1000);
+      }, config.reload_certificates_interval);
     });
 
     const httpsServer = https.createServer(
