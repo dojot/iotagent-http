@@ -669,7 +669,6 @@ services:
       HTTP_TLS_SECURE_KEY: "/certs/iotagent-http.key"
       HTTP_TLS_CA_CERT: "/certs/ca.crt"
       HTTP_TLS_CRL_CERT: "/certs/ca.crl"
-      HTTP_TLS_CRL_CERT: "/certs/ca.crl"
       HTTP_CERT_DIRECTORY: "/certs"
       HTTP_TLS_SECURE_ENABLED: "false"
     volumes:
