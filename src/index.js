@@ -7,18 +7,7 @@ const https = require("https");
 const http = require("http");
 const fs = require("fs");
 const tls = require("tls");
-
-const {
-  SERVER_PORT_HTTPS,
-  SERVER_PORT_HTTP,
-  HTTP_TLS_SECURE_ENABLED,
-  HTTP_TLS_SECURE_CERT,
-  HTTP_TLS_SECURE_KEY,
-  HTTP_TLS_CA_CERT,
-  HTTP_TLS_CRL_CERT,
-  RELOAD_CERTIFICATES_ATTEMPTS,
-  HTTP_CERT_DIRECTORY,
-} = process.env;
+const config = require("./config");
 
 let attempts = 0;
 
@@ -158,21 +147,21 @@ iotAgent
     const reloadCertificates = (interval) => {
       try {
         httpsServer.setSecureContext({
-          cert: fs.readFileSync(`${HTTP_TLS_SECURE_CERT}`),
-          key: fs.readFileSync(`${HTTP_TLS_SECURE_KEY}`),
-          ca: fs.readFileSync(`${HTTP_TLS_CA_CERT}`),
-          crl: fs.readFileSync(`${HTTP_TLS_CRL_CERT}`),
+          cert: fs.readFileSync(`${config.http_tls.cert}`),
+          key: fs.readFileSync(`${config.http_tls.key}`),
+          ca: fs.readFileSync(`${config.http_tls.ca}`),
+          crl: fs.readFileSync(`${config.http_tls.crl}`),
         });
         console.log("Seted new secure context");
         clearInterval(interval);
       } catch (err) {
         attempts++;
-        if (attempts > (RELOAD_CERTIFICATES_ATTEMPTS || 20))
+        if (attempts > config.reload_certificates_attempts)
           clearInterval(interval);
       }
     };
 
-    fs.watch(`${HTTP_CERT_DIRECTORY}`, (eventType, filename) => {
+    fs.watch(`${config.http_cert_directory}`, (eventType, filename) => {
       console.log(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
@@ -181,9 +170,9 @@ iotAgent
 
     const httpsServer = https.createServer(
       {
-        cert: fs.readFileSync(`${HTTP_TLS_SECURE_CERT}`),
-        key: fs.readFileSync(`${HTTP_TLS_SECURE_KEY}`),
-        ca: fs.readFileSync(`${HTTP_TLS_CA_CERT}`),
+        cert: fs.readFileSync(`${config.http_tls.cert}`),
+        key: fs.readFileSync(`${config.http_tls.key}`),
+        ca: fs.readFileSync(`${config.http_tls.ca}`),
         rejectUnauthorized: true,
         requestCert: true,
       },
@@ -191,19 +180,19 @@ iotAgent
     );
 
     // start HTTPS app
-    httpsServer.listen(SERVER_PORT_HTTPS || 3124, () => {
+    httpsServer.listen(config.server_port.https, () => {
       console.log(
-        `IotAgent HTTPS listening on port ${SERVER_PORT_HTTPS || 3124}!`
+        `IotAgent HTTPS listening on port ${config.server_port.https}!`
       );
     });
 
-    if (HTTP_TLS_SECURE_ENABLED === "true") {
+    if (config.allow_unsecured_mode) {
       const httpServer = http.createServer(app);
 
       // start HTTP app
-      httpServer.listen(SERVER_PORT_HTTP || 3123, () => {
+      httpServer.listen(config.server_port.http, () => {
         console.log(
-          `IotAgent HTTP listening on port ${SERVER_PORT_HTTP || 3123}!`
+          `IotAgent HTTP listening on port ${config.server_port.http}!`
         );
       });
     }

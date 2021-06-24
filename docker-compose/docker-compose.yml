@@ -663,14 +663,14 @@ services:
       - 8080:3124
     restart: always
     environment:
-      SERVER_PORT_HTTPS: 3124
       SERVER_PORT_HTTP: 3123
+      SERVER_PORT_HTTPS: 3124
       HTTP_TLS_SECURE_CERT: "/certs/iotagent-http.crt"
       HTTP_TLS_SECURE_KEY: "/certs/iotagent-http.key"
       HTTP_TLS_CA_CERT: "/certs/ca.crt"
       HTTP_TLS_CRL_CERT: "/certs/ca.crl"
       HTTP_CERT_DIRECTORY: "/certs"
-      HTTP_TLS_SECURE_ENABLED: "false"
+      ALLOW_UNSECURED_MODE: "true"
     volumes:
       - iotagent-http-cert-side-volume:/certs
     logging:

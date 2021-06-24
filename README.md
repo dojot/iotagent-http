@@ -57,7 +57,7 @@ These are the environment variables used by iotagent-http
 | ---------------------------- | --------------------------------------------- | ---------------------------------------- |
 | SERVER_PORT_HTTPS            | HTTPS port                                    | 3124                                     |
 | SERVER_PORT_HTTP             | HTTP port                                     | 3123                                     |
-| HTTP_ENABLED                 | Enable http                                   | false                                    |
+| ALLOW_UNSECURED_MODE         | Enable http                                   | false                                    |
 | HTTP_TLS_SECURE_CERT         | HTTP TLS **certificate** path                 | `<project-path>`/certs/iotagent-http.crt |
 | HTTP_TLS_SECURE_KEY          | HTTP TLS **key** path                         | `<project-path>`/certs/iotagent-http.key |
 | HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path       | `<project-path>`/certs/ca.crt            |
