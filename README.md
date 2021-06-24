@@ -51,18 +51,18 @@ HTTP response:
 
 These are the environment variables used by iotagent-http
 
-| Key                          | Purpose                                          | Default Value                            |
-| ---------------------------- | ------------------------------------------------ | ---------------------------------------- |
-| SERVER_PORT_HTTPS            | HTTPS port                                       | 3124                                     |
-| SERVER_PORT_HTTP             | HTTP port                                        | 3123                                     |
-| ALLOW_UNSECURED_MODE         | Enable http                                      | false                                    |
-| HTTP_TLS_SECURE_CERT         | HTTP TLS **certificate** path                    | `<project-path>`/certs/iotagent-http.crt |
-| HTTP_TLS_SECURE_KEY          | HTTP TLS **key** path                            | `<project-path>`/certs/iotagent-http.key |
-| HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path          | `<project-path>`/certs/ca.crt            |
-| HTTP_TLS_CRL_CERT            | HTTP TLS **certificate revocation list** path    | `<project-path>`/certs/ca.crl            |
-| RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                                       |
-| RELOAD_CERTIFICATES_INTERVAL | interval for reattempting to reload certificates | 1000                                     |
-| HTTP_CERT_DIRECTORY          | HTTP TLS **certificate revocation list** path    | `<project-path>`/certs                   |
+| Key                          | Purpose                                          | Default Value            |
+| ---------------------------- | ------------------------------------------------ | ------------------------ |
+| SERVER_PORT_HTTPS            | HTTPS port                                       | 3124                     |
+| SERVER_PORT_HTTP             | HTTP port                                        | 3123                     |
+| ALLOW_UNSECURED_MODE         | Enable http                                      | false                    |
+| HTTP_TLS_SECURE_CERT         | HTTP TLS **certificate** path                    | /certs/iotagent-http.crt |
+| HTTP_TLS_SECURE_KEY          | HTTP TLS **key** path                            | /certs/iotagent-http.key |
+| HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path          | /certs/ca.crt            |
+| HTTP_TLS_CRL_CERT            | HTTP TLS **certificate revocation list** path    | /certs/ca.crl            |
+| RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                       |
+| RELOAD_CERTIFICATES_INTERVAL | Interval for reattempting to reload certificates | 1000                     |
+| HTTP_CERT_DIRECTORY          | Certificates directory path                      | /certs                   |
 
 ## Notes
 
