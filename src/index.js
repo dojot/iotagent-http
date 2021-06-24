@@ -16,6 +16,8 @@ const {
   HTTP_TLS_SECURE_KEY,
   HTTP_TLS_CA_CERT,
   HTTP_TLS_CRL_CERT,
+  RELOAD_CERTIFICATES_ATTEMPTS,
+  HTTP_CERT_DIRECTORY,
 } = process.env;
 
 let attempts = 0;
@@ -47,7 +49,6 @@ iotAgent
         console.log(
           `Received device.update event ${event} for tenant ${tenant}.`
         );
-        // TODO handle this event
       }
     );
 
@@ -59,7 +60,6 @@ iotAgent
         console.log(
           `Received device.update event ${event} for tenant ${tenant}.`
         );
-        // TODO handle this event
       }
     );
 
@@ -82,7 +82,7 @@ iotAgent
       let readings;
 
       if (!body.hasOwnProperty("readings")) {
-        res.status(400).send({ message: "Missing attribute" });
+        res.status(400).send({ message: "Missing attribute readings" });
         return;
       }
 
@@ -100,26 +100,34 @@ iotAgent
           deviceId = body.deviceId;
           tenant = body.tenant;
           readings = body.readings;
-          // validate if the message belongs to some device
+          // validate if the message belongs to same device than certificate
           if (clientCert.subject.CN !== `${tenant}:${deviceId}`) {
             res.status(400).send({
-              message: `Connection rejected for ${deviceId} due to invalid client certificate.`,
+              message: `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`,
             });
             return;
           }
         } else {
-          const cn = clientCert.subject.CN;
-          const cnArray = cn.split(":");
-          tenant = cnArray[0];
-          deviceId = cnArray[1];
           readings = body.readings;
+          const cn = clientCert.subject.CN;
+          try {
+            const cnArray = cn.split(":");
+            tenant = cnArray[0];
+            deviceId = cnArray[1];
+          } catch (e) {
+            res.status(400).send({
+              message: `Error trying to get tenant and deviceId in CN of certificate.`,
+            });
+          }
         }
       } else {
         if (
           !body.hasOwnProperty("deviceId") ||
           !body.hasOwnProperty("tenant")
         ) {
-          res.status(400).send({ message: "Missing attribute" });
+          res
+            .status(400)
+            .send({ message: "Missing attribute tenant or deviceId" });
           return;
         }
 
@@ -159,11 +167,12 @@ iotAgent
         clearInterval(interval);
       } catch (err) {
         attempts++;
-        if (attempts > 10) clearInterval(interval);
+        if (attempts > (RELOAD_CERTIFICATES_ATTEMPTS || 20))
+          clearInterval(interval);
       }
     };
 
-    fs.watch("/certs", (eventType, filename) => {
+    fs.watch(`${HTTP_CERT_DIRECTORY}`, (eventType, filename) => {
       console.log(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
