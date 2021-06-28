@@ -64,6 +64,7 @@ These are the environment variables used by iotagent-http
 | RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                         |
 | RELOAD_CERTIFICATES_INTERVAL | Interval for reattempting to reload certificates | 1000                       |
 | HTTP_CERT_DIRECTORY          | Certificate directory path for watching          | "/certs"                   |
+| LOG_LEVEL                    | Set log level                                    | "info"                     |
 
 ## Notes
 
