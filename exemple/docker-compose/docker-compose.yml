@@ -1,40 +1,6 @@
 version: '3.8'
 services:
 
-  history:
-    image: dojot/history:development
-    restart: always
-    depends_on:
-      - mongodb
-    environment:
-      FALCON_SETTINGS_MODULE: 'history.settings.docker'
-      DOJOT_MANAGEMENT_USER: 'history'
-      LOG_LEVEL: INFO
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  persister:
-    image: dojot/persister:development
-    restart: always
-    depends_on:
-      - mongodb
-      - auth
-      - kafka
-      - data-broker
-    environment:
-      FALCON_SETTINGS_MODULE: 'history.settings.docker'
-      DOJOT_MANAGEMENT_USER: 'persister'
-      KAFKA_GROUP_ID: 'persister-group'
-      LOG_LEVEL: INFO
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
   mongodb:
     image: dojot/mongo:3.2
     restart: always
@@ -54,26 +20,8 @@ services:
       - mongodb-volume:/data/db
       - mongodb-cfg-volume:/data/configdb
 
-  gui:
-    image: dojot/gui:development
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  gui-v2:
-    image: dojot/gui-v2:development
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
   data-broker:
-    image: dojot/data-broker:development
+    image: dojot/data-broker:v0.7.0-rc.1
     restart: always
     depends_on:
       - kafka
@@ -104,43 +52,8 @@ services:
         max-size: 20m
         max-file: '5'
 
-  image-manager:
-    image: dojot/image-manager:development
-    restart: always
-    depends_on:
-      - postgres
-      - minio
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-    environment:
-      # TODO: The following should be unique for each environment
-      S3ACCESSKEY: 9HEODSF6WQN5EZ39DM7Z
-      S3SECRETKEY: fT5nAgHR9pkj0yYsBdc4p+PPq6ArjshcPdz0HA6W
-      DBHOST: postgres
-      DBUSER: imgm
-      DBPASS: imgm
-
-  minio:
-    image: dojot/minio:2019.09.20
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-    environment:
-      # TODO: The following should be unique for each environment
-      MINIO_ACCESS_KEY: 9HEODSF6WQN5EZ39DM7Z
-      MINIO_SECRET_KEY: fT5nAgHR9pkj0yYsBdc4p+PPq6ArjshcPdz0HA6W
-    command: server /data
-    volumes:
-      - minio-volume:/data
-
   device-manager:
-    image: dojot/device-manager:development
+    image: dojot/device-manager:v0.7.0-rc.1
     restart: always
     environment:
       # TODO: Fill these env variables with suitable values
@@ -199,7 +112,7 @@ services:
 
   # Prepare database, Bootstrap the database
   kong-migrations:
-    image: dojot/kong:development
+    image: dojot/kong:v0.7.0-rc.1
     command: kong migrations bootstrap
     depends_on:
       postgres:
@@ -220,7 +133,7 @@ services:
 
   # Run any new migrations and Finish running any pending migrations after 'up'.
   kong-migrations-up:
-    image:  dojot/kong:development
+    image:  dojot/kong:v0.7.0-rc.1
     command: kong migrations up && kong migrations finish
     depends_on:
       postgres:
@@ -240,7 +153,7 @@ services:
         max-file: '5'
 
   apigw:
-    image: dojot/kong:development
+    image: dojot/kong:v0.7.0-rc.1
     depends_on:
       postgres:
         condition: service_healthy
@@ -303,7 +216,7 @@ services:
 
 
   auth:
-    image: dojot/auth:development
+    image: dojot/auth:v0.7.0-rc.1
     restart: always
     depends_on:
       - apigw
@@ -331,81 +244,6 @@ services:
     restart: always
     volumes:
       - auth-redis-volume:/data
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  flowbroker:
-    image: dojot/flowbroker:development
-    restart: always
-    environment:
-      DEPLOY_ENGINE: "docker"
-      FLOWBROKER_NETWORK: ${FLOWBROKER_NETWORK}
-      DOJOT_MANAGEMENT_USER: 'flowbroker'
-      KAFKA_GROUP_ID: 'flowbroker-group'
-      LOG_LEVEL: 'info'
-    depends_on:
-      - rabbitmq
-      - kafka
-      - mongodb
-      - auth
-      - flowbroker-context-manager
-      - flowbroker-redis
-    networks:
-      - default
-      - flowbroker
-    volumes:
-      - flowbroker-volume:/data
-      - /var/run/docker.sock:/var/run/docker.sock:Z
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  flowbroker-redis:
-    image: dojot/redis:5.0.5-alpine3.10
-    restart: always
-    volumes:
-      - flowbroker-redis-volume:/data
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  flowbroker-context-manager:
-    image: dojot/flowbroker-context-manager:development
-    restart: always
-    environment:
-      ZOOKEEPER_HOST: zookeeper
-      ZOOKEEPER_PORT: 2181
-      ZEROMQ_PORT: 5556
-      HOLD_LOCK_TIMEOUT: 10000
-      WAIT_LOCK_TIMEOUT: 30000
-    depends_on:
-      - zookeeper
-    networks:
-      - default
-      - flowbroker
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  rabbitmq:
-    image: dojot/rabbitmq:3.7-alpine
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://rabbitmq:15672"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - rabbitmq-volume:/var/lib/rabbitmq
     logging:
       driver: json-file
       options:
@@ -467,7 +305,7 @@ services:
         max-file: '5'
 
   x509-identity-mgmt:
-    image: dojot/x509-identity-mgmt:development
+    image: dojot/x509-identity-mgmt:v0.7.0-rc.1
     depends_on:
       - x509-ejbca
       - postgres
@@ -498,7 +336,7 @@ services:
         max-file: '5'
 
   x509-ejbca: # this service cannot be called 'ejbca'
-    image: dojot/ejbca:development
+    image: dojot/ejbca:v0.7.0-rc.1
     depends_on:
       - postgres
     restart: always
@@ -538,96 +376,21 @@ services:
       options:
         max-size: 20m
         max-file: '5'
-
-  kafka-ws:
-    image: dojot/kafka-ws:development
-    depends_on:
-      - kafka
-      - kafka-ws-redis
-    environment:
-      KAFKA_WS_SERVER_JWT_EXP_TIME: "true"
-      KAFKA_WS_REDIS_HOST: kafka-ws-redis
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  kafka-ws-redis:
-    image: dojot/redis:6.0.4-alpine3.11
-    restart: always
-    volumes:
-      - kafka-ws-redis-volume:/data
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  acl-redis:
-    image: dojot/redis:6.0.4-alpine3.11
-    restart: always
-    volumes:
-      - acl-redis-volume:/data
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  certificate-acl:
-    image: dojot/certificate-acl:development
-    depends_on:
-      - acl-redis
-      - kafka
-      - x509-identity-mgmt
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  data-manager:
-    image: dojot/data-manager:development
-    restart: always
-    depends_on:
-      - flowbroker
-      - device-manager
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  backstage:
-    image: dojot/backstage:development
-    restart: always
-    depends_on:
-      - postgres
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
-
-  cron:
-    image: dojot/cron:development
-    depends_on:
-      - kafka
-      - data-broker
-      - auth
-      - mongodb
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 20m
-        max-file: '5'
   
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    depends_on:
+        - kafka
+    restart: always
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    ports:
+      - "9090:9000"
+
   iotagent-http-cert-sidecar:
-    image: dojot/cert-sidecar:development
+    image: dojot/cert-sidecar:v0.7.0-rc.1
     depends_on:
       - x509-identity-mgmt
     environment:
@@ -671,6 +434,7 @@ services:
       HTTP_TLS_CRL_CERT: "/certs/ca.crl"
       HTTP_CERT_DIRECTORY: "/certs"
       ALLOW_UNSECURED_MODE: "true"
+      LOG_LEVEL: "debug"
     volumes:
       - iotagent-http-cert-side-volume:/certs
     logging:
@@ -684,23 +448,12 @@ volumes:
   postgres-volume:
   mongodb-volume:
   mongodb-cfg-volume:
-  minio-volume:
-  rabbitmq-volume:
   zookeeper-volume:
   zookeeper-log-volume:
   zookeeper-secrets-volume:
   kafka-volume:
   kafka-secrets-volume:
   auth-redis-volume:
-  flowbroker-volume:
-  flowbroker-redis-volume:
   data-broker-redis-volume:
   device-manager-redis-volume:
-  kafka-ws-redis-volume:
-  influxdb-volume:
-  acl-redis-volume:
   iotagent-http-cert-side-volume:
-
-networks:
-  flowbroker:
-    name: ${FLOWBROKER_NETWORK}

@@ -19,12 +19,13 @@ $ docker build -t <tag> .
 
 ## Examples
 
-HTTP request:
+HTTPS request:
 
 ```HTTP
   POST readings/ \
     -H 'content-type: application/json' \
     -d '{
+    "deviceId": "exemplo123",
     "tenant": "exemple",
     "readings": [
       {
@@ -38,32 +39,33 @@ HTTP request:
   --key exemple.key
 ```
 
-HTTP response:
+HTTPS response:
 
 ```HTTP
   HTTP/1.1 200 OK
   Content-type: application/json
 
-  "message":"OK"
+  { message: "Successfully published" }
 ```
 
 ## Configuration
 
 These are the environment variables used by iotagent-http
 
-| Key                          | Purpose                                          | Default Value            |
-| ---------------------------- | ------------------------------------------------ | ------------------------ |
-| SERVER_PORT_HTTPS            | HTTPS port                                       | 3124                     |
-| SERVER_PORT_HTTP             | HTTP port                                        | 3123                     |
-| ALLOW_UNSECURED_MODE         | Enable http                                      | false                    |
-| HTTP_TLS_SECURE_CERT         | HTTP TLS **certificate** path                    | /certs/iotagent-http.crt |
-| HTTP_TLS_SECURE_KEY          | HTTP TLS **key** path                            | /certs/iotagent-http.key |
-| HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path          | /certs/ca.crt            |
-| HTTP_TLS_CRL_CERT            | HTTP TLS **certificate revocation list** path    | /certs/ca.crl            |
-| RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                       |
-| RELOAD_CERTIFICATES_INTERVAL | Interval for reattempting to reload certificates | 1000                     |
-| HTTP_CERT_DIRECTORY          | Certificate directory path for watching          | /certs                   |
+| Key                          | Purpose                                          | Default Value              |
+| ---------------------------- | ------------------------------------------------ | -------------------------- |
+| SERVER_PORT_HTTPS            | HTTPS port                                       | 3124                       |
+| SERVER_PORT_HTTP             | HTTP port                                        | 3123                       |
+| ALLOW_UNSECURED_MODE         | Enable http                                      | "false"                    |
+| HTTP_TLS_SECURE_CERT         | HTTP TLS **certificate** path                    | "/certs/iotagent-http.crt" |
+| HTTP_TLS_SECURE_KEY          | HTTP TLS **key** path                            | "/certs/iotagent-http.key" |
+| HTTP_TLS_CA_CERT             | HTTP TLS **certificate authority** path          | "/certs/ca.crt"            |
+| HTTP_TLS_CRL_CERT            | HTTP TLS **certificate revocation list** path    | "/certs/ca.crl"            |
+| RELOAD_CERTIFICATES_ATTEMPTS | Limit on attempts to reload certificate          | 10                         |
+| RELOAD_CERTIFICATES_INTERVAL | Interval for reattempting to reload certificates | 1000                       |
+| HTTP_CERT_DIRECTORY          | Certificate directory path for watching          | "/certs"                   |
 
 ## Notes
 
 - If it does not receive a timestamp or receives an invalid timestamp, it uses the current timestamp.
+- Invalid values ​​for "ALLOW_UNSECURED_MODE" will be considered false. To enable set to "true".

@@ -37,4 +37,6 @@ config.reload_certificates = {
 
 config.http_cert_directory = process.env.HTTP_CERT_DIRECTORY || "/certs";
 
+config.log_level = process.env.LOG_LEVEL || "info";
+
 module.exports = config;

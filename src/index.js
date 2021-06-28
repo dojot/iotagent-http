@@ -2,6 +2,7 @@
 
 // Libraries
 const IotAgent = require("@dojot/iotagent-nodejs");
+const { logger } = require("@dojot/dojot-module-logger");
 const express = require("express");
 const https = require("https");
 const http = require("http");
@@ -11,20 +12,23 @@ const config = require("./config");
 
 let attempts = 0;
 
+// set log level
+logger.setLevel(config.log_level);
+
 // Initialize the IoT Agent.
 let iotAgent = new IotAgent.IoTAgent();
 
 iotAgent
   .init()
   .then(() => {
-    console.log("Succeeded to start the HTTP IoT Agent ");
+    logger.info("Succeeded to start the HTTP IoT Agent ");
 
     // Handle device.create event
     iotAgent.messenger.on(
       "iotagent.device",
       "device.create",
       (tenant, event) => {
-        console.log(
+        logger.debug(
           `Received device.create event ${event.data.label} for tenant ${tenant}.`
         );
       }
@@ -35,7 +39,7 @@ iotAgent
       "iotagent.device",
       "device.update",
       (tenant, event) => {
-        console.log(
+        logger.debug(
           `Received device.update event ${event} for tenant ${tenant}.`
         );
       }
@@ -46,7 +50,7 @@ iotAgent
       "iotagent.device",
       "device.remove",
       (tenant, event) => {
-        console.log(
+        logger.debug(
           `Received device.update event ${event} for tenant ${tenant}.`
         );
       }
@@ -62,8 +66,8 @@ iotAgent
     app.use(express.urlencoded({ extended: true }));
 
     // handle HTTP post
-    app.post("/readings", (req, res) => {
-      console.log(`Received HTTP message: ${JSON.stringify(req.body)}`);
+    app.post("/iotagent/readings", (req, res) => {
+      logger.debug(`Received HTTP message: ${JSON.stringify(req.body)}`);
 
       const body = req.body;
       let tenant;
@@ -82,6 +86,7 @@ iotAgent
           !clientCert.hasOwnProperty("subject") ||
           !Object.hasOwnProperty.bind(clientCert.subject)("CN")
         ) {
+          logger.error("Client certificate is invalid.");
           res.status(400).send({ message: "Client certificate is invalid." });
           return;
         }
@@ -91,6 +96,9 @@ iotAgent
           readings = body.readings;
           // validate if the message belongs to same device than certificate
           if (clientCert.subject.CN !== `${tenant}:${deviceId}`) {
+            logger.error(
+              `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`
+            );
             res.status(400).send({
               message: `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`,
             });
@@ -103,7 +111,11 @@ iotAgent
             const cnArray = cn.split(":");
             tenant = cnArray[0];
             deviceId = cnArray[1];
-          } catch (e) {
+          } catch (err) {
+            logger.error(
+              "Error trying to get tenant and deviceId in CN of certificate.",
+              err
+            );
             res.status(400).send({
               message: `Error trying to get tenant and deviceId in CN of certificate.`,
             });
@@ -114,6 +126,7 @@ iotAgent
           !body.hasOwnProperty("deviceId") ||
           !body.hasOwnProperty("tenant")
         ) {
+          logger.error("Missing attribute tenant or deviceId");
           res
             .status(400)
             .send({ message: "Missing attribute tenant or deviceId" });
@@ -127,21 +140,24 @@ iotAgent
 
       readings.forEach(function (reading) {
         const metadata = {};
-        metadata.timestamp = Date.parse(reading.timestamp);
+        try {
+          metadata.timestamp = Date.parse(reading.timestamp);
+        } catch (err) {
+          metadata.timestamp = new Date().getTime();
+        }
         delete reading.timestamp;
         const msg = { ...reading };
 
-        console.log(msg);
-
         msg["device"] = deviceId;
 
-        console.log(deviceId, tenant, msg, { ...metadata });
+        logger.debug(deviceId, tenant, msg, { ...metadata });
 
         // send data to dojot internal services
         iotAgent.updateAttrs(deviceId, tenant, msg, { ...metadata });
       });
 
-      res.status(200).send({ message: "OK" });
+      logger.info("Message published successfully.");
+      res.status(200).send({ message: "Successfully published" });
     });
 
     const reloadCertificates = (interval) => {
@@ -152,17 +168,21 @@ iotAgent
           ca: fs.readFileSync(`${config.http_tls.ca}`),
           crl: fs.readFileSync(`${config.http_tls.crl}`),
         });
-        console.log("Seted new secure context");
+        logger.debug("Seted new secure context!");
         clearInterval(interval);
       } catch (err) {
         attempts++;
-        if (attempts > config.reload_certificates.attempts)
+        if (attempts > config.reload_certificates.attempts) {
           clearInterval(interval);
+        } else {
+          logger.error("New secure context cannot be Seted!", err);
+          process.kill(process.pid, "SIGTERM");
+        }
       }
     };
 
     fs.watch(`${config.http_cert_directory}`, (eventType, filename) => {
-      console.log(`${eventType}: The ${filename} was modified!`);
+      logger.debug(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
       }, config.reload_certificates.interval);
@@ -181,7 +201,7 @@ iotAgent
 
     // start HTTPS app
     httpsServer.listen(config.server_port.https, () => {
-      console.log(
+      logger.info(
         `IotAgent HTTPS listening on port ${config.server_port.https}!`
       );
     });
@@ -191,13 +211,13 @@ iotAgent
 
       // start HTTP app
       httpServer.listen(config.server_port.http, () => {
-        console.log(
+        logger.info(
           `IotAgent HTTP listening on port ${config.server_port.http}!`
         );
       });
     }
   })
   .catch((error) => {
-    console.error(`Failed to initialize the HTTP IoT Agent (${error})`);
-    process.exit(1);
+    logger.error(`Failed to initialize the HTTP IoT Agent (${error})`);
+    process.kill(process.pid, "SIGTERM");
   });
