@@ -16,7 +16,7 @@ As prerequisites this uses curl, jq, openssl and git.
 On Debian-based Linux distributions, you can install these prerequisites by running:
 
 ```sh
-  sudo apt install curl jq OpenSSL git
+  sudo apt install curl jq openssl git
 ```
 
 ## Getting access token
@@ -191,6 +191,10 @@ Use the following command passed the path of the ca, certificate and key:
       {
         "timestamp": "2021-06-16T09:31:01.683000Z",
         "temperature": 26.8
+      },
+      {
+        "timestamp": "2021-06-16T09:31:01.683000Z",
+        "fan": 16.1
       }
     ]
   }' \

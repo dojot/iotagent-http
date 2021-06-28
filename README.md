@@ -30,7 +30,11 @@ HTTPS request:
     "readings": [
       {
         "timestamp": "2021-06-16T09:31:01.683000Z",
-        "temp": 26.8
+        "temperature": 26.8
+      },
+      {
+        "timestamp": "2021-06-16T09:31:01.683000Z",
+        "fan": 16.1
       }
     ]
   }' \
