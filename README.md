@@ -22,7 +22,7 @@ $ docker build -t <tag> .
 HTTPS request:
 
 ```HTTP
-  POST readings/ \
+  POST /iotagent/readings/ \
     -H 'content-type: application/json' \
     -d '{
     "deviceId": "exemplo123",
@@ -68,6 +68,7 @@ These are the environment variables used by iotagent-http
 
 ## Notes
 
-- If it does not receive a timestamp or receives an invalid timestamp, it uses the current timestamp.
+- If it does not receive a timestamp or receives an invalid timestamp, it uses the current timestamp, this is a Date-time RFC3339.
 - Invalid values ​​for "ALLOW_UNSECURED_MODE" will be considered false. To enable set to "true".
 - With HTTP the tenant and device id in the body are mandatory, with HTTPS they are optional, but if both are passed they must match the cname.
+- In the x509-identity-mgmt service be sure to set the X509IDMGMT_CERTIFICATE_CHECK_SUBJECTDN variable to "true", if it is passed the certificate cname will be tenant:device, otherwise the HTTPS request will not work

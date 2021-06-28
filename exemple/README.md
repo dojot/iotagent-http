@@ -11,12 +11,12 @@ To run this example, type:
 
 ## Using the example
 
-As prerequisites this uses curl and jq .
+As prerequisites this uses curl, jq, openssl and git.
 
 On Debian-based Linux distributions, you can install these prerequisites by running:
 
 ```sh
-  sudo apt install curl jq openccl git
+  sudo apt install curl jq OpenSSL git
 ```
 
 ## Getting access token
@@ -186,6 +186,7 @@ Use the following command passed the path of the ca, certificate and key:
     -H 'content-type: application/json' \
     -d '{
     "tenant": "admin",
+    "deviceId": <deviceId>,
     "readings": [
       {
         "timestamp": "2021-06-16T09:31:01.683000Z",
