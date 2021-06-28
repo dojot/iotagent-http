@@ -70,3 +70,4 @@ These are the environment variables used by iotagent-http
 
 - If it does not receive a timestamp or receives an invalid timestamp, it uses the current timestamp.
 - Invalid values ​​for "ALLOW_UNSECURED_MODE" will be considered false. To enable set to "true".
+- With HTTP the tenant and device id in the body are mandatory, with HTTPS they are optional, but if both are passed they must match the cname.
