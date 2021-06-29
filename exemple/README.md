@@ -42,19 +42,24 @@ In order to properly configure a physical device in dojot, you must first create
 First of all, let’s create a template for the device - all devices are based off of a template, remember.
 
 ```sh
-  curl -X POST http://localhost:8000/template \
-  -H "Authorization: Bearer ${JWT}" \
-  -H 'Content-Type:application/json' \
-  -d ' {
-    "label": "Thermometer Template",
-    "attrs": [
-      {
-        "label": "temperature",
-        "type": "dynamic",
-        "value_type": "float"
-      },
-    ]
-  }'
+curl -X POST http://localhost:8000/template \
+-H "Authorization: Bearer ${JWT}" \
+-H 'Content-Type:application/json' \
+-d ' {
+  "label": "Thermometer Template",
+  "attrs": [
+    {
+      "label": "temperature",
+      "type": "dynamic",
+      "value_type": "float"
+    },
+    {
+      "label": "velocity",
+      "type": "dynamic",
+      "value_type": "float"
+    }
+  ]
+}'
 ```
 
 This request should give back this message:
@@ -72,6 +77,14 @@ This request should give back this message:
           "value_type": "float",
           "type": "dynamic",
           "id": 1
+        },
+        {
+          "template_id": "1",
+          "created": "2018-01-25T12:30:42.167126+00:00",
+          "label": "velocity",
+          "type": "dynamic",
+          "value_type": "float",
+          "id": 2
         }
       ],
       "label": "Thermometer Template",
@@ -84,6 +97,14 @@ This request should give back this message:
           "value_type": "float",
           "type": "dynamic",
           "id": 1
+        },
+        {
+          "template_id": "1",
+          "created": "2018-01-25T12:30:42.167126+00:00",
+          "label": "velocity",
+          "type": "dynamic",
+          "value_type": "float",
+          "id": 2
         }
       ],
       "id": 1
@@ -140,8 +161,8 @@ Which should give back:
             {
               "template_id": "1",
               "created": "2018-01-25T12:30:42.167126+00:00",
-              "label": "fan",
-              "value_type": "actuator",
+              "label": "velocity",
+              "value_type": "dynamic",
               "type": "float",
               "id": 2
            }
@@ -189,12 +210,13 @@ Use the following command passed the path of the ca, certificate and key:
     "deviceId": <deviceId>,
     "readings": [
       {
-        "timestamp": "2021-06-16T09:31:01.683000Z",
+        "timestamp": "2021-06-16T09:32:01.683000Z",
+        "velocity": 16.1,
         "temperature": 26.8
       },
       {
         "timestamp": "2021-06-16T09:31:01.683000Z",
-        "fan": 16.1
+        "temperature": 26.8
       }
     ]
   }' \

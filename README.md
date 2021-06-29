@@ -29,12 +29,13 @@ HTTPS request:
     "tenant": "exemple",
     "readings": [
       {
-        "timestamp": "2021-06-16T09:31:01.683000Z",
+        "timestamp": "2021-06-16T09:32:01.683000Z",
+        "velocity": 16.1,
         "temperature": 26.8
       },
       {
         "timestamp": "2021-06-16T09:31:01.683000Z",
-        "fan": 16.1
+        "temperature": 26.8
       }
     ]
   }' \
