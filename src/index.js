@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 
 // Libraries
-const IotAgent = require("@dojot/iotagent-nodejs");
-const { logger } = require("@dojot/dojot-module-logger");
-const express = require("express");
-const https = require("https");
-const http = require("http");
-const fs = require("fs");
-const tls = require("tls");
-const config = require("./config");
+const IotAgent = require('@dojot/iotagent-nodejs');
+const { logger } = require('@dojot/dojot-module-logger');
+const express = require('express');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const tls = require('tls');
+const config = require('./config');
 
 let attempts = 0;
 
@@ -21,7 +21,7 @@ let iotAgent = new IotAgent.IoTAgent();
 iotAgent
   .init()
   .then(() => {
-    logger.info("Succeeded to start the HTTP IoT Agent ");
+    logger.info('Succeeded to start the HTTP IoT Agent ');
 
     // HTTP app
     const app = express();
@@ -30,7 +30,7 @@ iotAgent
     app.use(express.urlencoded({ extended: true }));
 
     // handle HTTP post
-    app.post("/iotagent/readings", (req, res) => {
+    app.post('/iotagent/readings', (req, res) => {
       logger.debug(`Received HTTP message: ${JSON.stringify(req.body)}`);
 
       const body = req.body;
@@ -38,8 +38,8 @@ iotAgent
       let deviceId;
       let readings;
 
-      if (!body.hasOwnProperty("readings")) {
-        res.status(400).send({ message: "Missing attribute readings" });
+      if (!body.hasOwnProperty('readings')) {
+        res.status(400).send({ message: 'Missing attribute readings' });
         return;
       }
 
@@ -47,14 +47,14 @@ iotAgent
         // retrieve certificates from the request ( in der format )
         const clientCert = req.socket.getPeerCertificate();
         if (
-          !clientCert.hasOwnProperty("subject") ||
-          !Object.hasOwnProperty.bind(clientCert.subject)("CN")
+          !clientCert.hasOwnProperty('subject') ||
+          !Object.hasOwnProperty.bind(clientCert.subject)('CN')
         ) {
-          logger.error("Client certificate is invalid.");
-          res.status(401).send({ message: "Client certificate is invalid." });
+          logger.error('Client certificate is invalid.');
+          res.status(401).send({ message: 'Client certificate is invalid.' });
           return;
         }
-        if (body.hasOwnProperty("deviceId") && body.hasOwnProperty("tenant")) {
+        if (body.hasOwnProperty('deviceId') && body.hasOwnProperty('tenant')) {
           deviceId = body.deviceId;
           tenant = body.tenant;
           readings = body.readings;
@@ -72,12 +72,12 @@ iotAgent
           readings = body.readings;
           const cn = clientCert.subject.CN;
           try {
-            const cnArray = cn.split(":");
+            const cnArray = cn.split(':');
             tenant = cnArray[0];
             deviceId = cnArray[1];
           } catch (err) {
             logger.error(
-              "Error trying to get tenant and deviceId in CN of certificate.",
+              'Error trying to get tenant and deviceId in CN of certificate.',
               err
             );
             res.status(401).send({
@@ -87,13 +87,13 @@ iotAgent
         }
       } else {
         if (
-          !body.hasOwnProperty("deviceId") ||
-          !body.hasOwnProperty("tenant")
+          !body.hasOwnProperty('deviceId') ||
+          !body.hasOwnProperty('tenant')
         ) {
-          logger.error("Missing attribute tenant or deviceId");
+          logger.error('Missing attribute tenant or deviceId');
           res
             .status(401)
-            .send({ message: "Missing attribute tenant or deviceId" });
+            .send({ message: 'Missing attribute tenant or deviceId' });
           return;
         }
 
@@ -112,7 +112,7 @@ iotAgent
         delete reading.timestamp;
         const msg = { ...reading };
 
-        msg["device"] = deviceId;
+        msg['device'] = deviceId;
 
         logger.debug(deviceId, tenant, msg, { ...metadata });
 
@@ -120,8 +120,8 @@ iotAgent
         iotAgent.updateAttrs(deviceId, tenant, msg, { ...metadata });
       });
 
-      logger.info("Message published successfully.");
-      res.status(200).send({ message: "Successfully published" });
+      logger.info('Message published successfully.');
+      res.status(200).send({ message: 'Successfully published' });
     });
 
     const reloadCertificates = (interval) => {
@@ -132,14 +132,14 @@ iotAgent
           ca: fs.readFileSync(`${config.http_tls.ca}`),
           crl: fs.readFileSync(`${config.http_tls.crl}`),
         });
-        logger.debug("Seted new secure context!");
+        logger.debug('Seted new secure context!');
         clearInterval(interval);
       } catch (err) {
         if (attempts < config.reload_certificates.attempts) {
           attempts++;
         } else {
-          logger.error("New secure context cannot be Seted!", err);
-          process.kill(process.pid, "SIGTERM");
+          logger.error('New secure context cannot be Seted!', err);
+          process.kill(process.pid, 'SIGTERM');
         }
       }
     };
@@ -182,5 +182,5 @@ iotAgent
   })
   .catch((error) => {
     logger.error(`Failed to initialize the HTTP IoT Agent (${error})`);
-    process.kill(process.pid, "SIGTERM");
+    process.kill(process.pid, 'SIGTERM');
   });
