@@ -1,5 +1,4 @@
-'use strict';
-
+/* eslint-disable security/detect-non-literal-fs-filename */
 // Libraries
 const IotAgent = require('@dojot/iotagent-nodejs');
 const { logger } = require('@dojot/dojot-module-logger');
@@ -16,7 +15,7 @@ let attempts = 0;
 logger.setLevel(config.log_level);
 
 // Initialize the IoT Agent.
-let iotAgent = new IotAgent.IoTAgent();
+const iotAgent = new IotAgent.IoTAgent();
 
 iotAgent
   .init()
@@ -33,12 +32,12 @@ iotAgent
     app.post('/iotagent/readings', (req, res) => {
       logger.debug(`Received HTTP message: ${JSON.stringify(req.body)}`);
 
-      const body = req.body;
+      const { body } = req;
       let tenant;
       let deviceId;
       let readings;
 
-      if (!body.hasOwnProperty('readings')) {
+      if (!Object.prototype.hasOwnProperty.call(body, 'readings')) {
         res.status(400).send({ message: 'Missing attribute readings' });
         return;
       }
@@ -47,21 +46,21 @@ iotAgent
         // retrieve certificates from the request ( in der format )
         const clientCert = req.socket.getPeerCertificate();
         if (
-          !clientCert.hasOwnProperty('subject') ||
-          !Object.hasOwnProperty.bind(clientCert.subject)('CN')
+          !Object.prototype.hasOwnProperty.call(clientCert, 'subject')
+          || !Object.hasOwnProperty.bind(clientCert.subject)('CN')
         ) {
           logger.error('Client certificate is invalid.');
           res.status(401).send({ message: 'Client certificate is invalid.' });
           return;
         }
-        if (body.hasOwnProperty('deviceId') && body.hasOwnProperty('tenant')) {
+        if (Object.prototype.hasOwnProperty.call(body, 'deviceId') && Object.prototype.hasOwnProperty.call(body, 'tenant')) {
           deviceId = body.deviceId;
           tenant = body.tenant;
           readings = body.readings;
           // validate if the message belongs to same device than certificate
           if (clientCert.subject.CN !== `${tenant}:${deviceId}`) {
             logger.error(
-              `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`
+              `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`,
             );
             res.status(401).send({
               message: `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`,
@@ -73,22 +72,22 @@ iotAgent
           const cn = clientCert.subject.CN;
           try {
             const cnArray = cn.split(':');
-            tenant = cnArray[0];
-            deviceId = cnArray[1];
+            [tenant, deviceId] = cnArray;
           } catch (err) {
             logger.error(
               'Error trying to get tenant and deviceId in CN of certificate.',
-              err
+              err,
             );
             res.status(401).send({
-              message: `Error trying to get tenant and deviceId in CN of certificate.`,
+              message:
+                'Error trying to get tenant and deviceId in CN of certificate.',
             });
           }
         }
       } else {
         if (
-          !body.hasOwnProperty('deviceId') ||
-          !body.hasOwnProperty('tenant')
+          !Object.prototype.hasOwnProperty.call(body, 'deviceId')
+          || !Object.prototype.hasOwnProperty.call(body, 'tenant')
         ) {
           logger.error('Missing attribute tenant or deviceId');
           res
@@ -102,19 +101,20 @@ iotAgent
         readings = body.readings;
       }
 
-      readings.forEach(function (reading) {
+      readings.forEach((reading) => {
+        const newReading = reading;
         const metadata = {};
         try {
-          metadata.timestamp = Date.parse(reading.timestamp);
+          metadata.timestamp = Date.parse(newReading.timestamp);
         } catch (err) {
           metadata.timestamp = new Date().getTime();
         }
-        delete reading.timestamp;
-        const msg = { ...reading };
+        delete newReading.timestamp;
+        const msg = { ...newReading };
 
-        msg['device'] = deviceId;
+        msg.device = deviceId;
 
-        logger.debug(deviceId, tenant, msg, { ...metadata });
+        logger.debug(`${deviceId}, ${tenant}, ${JSON.stringify(msg)}, ${JSON.stringify({ ...metadata })}`);
 
         // send data to dojot internal services
         iotAgent.updateAttrs(deviceId, tenant, msg, { ...metadata });
@@ -123,6 +123,17 @@ iotAgent
       logger.info('Message published successfully.');
       res.status(200).send({ message: 'Successfully published' });
     });
+
+    const httpsServer = https.createServer(
+      {
+        cert: fs.readFileSync(`${config.http_tls.cert}`),
+        key: fs.readFileSync(`${config.http_tls.key}`),
+        ca: fs.readFileSync(`${config.http_tls.ca}`),
+        rejectUnauthorized: true,
+        requestCert: true,
+      },
+      app,
+    );
 
     const reloadCertificates = (interval) => {
       try {
@@ -136,7 +147,7 @@ iotAgent
         clearInterval(interval);
       } catch (err) {
         if (attempts < config.reload_certificates.attempts) {
-          attempts++;
+          attempts += 1;
         } else {
           logger.error('New secure context cannot be Seted!', err);
           process.kill(process.pid, 'SIGTERM');
@@ -146,26 +157,15 @@ iotAgent
 
     fs.watch(`${config.http_cert_directory}`, (eventType, filename) => {
       logger.debug(`${eventType}: The ${filename} was modified!`);
-      let interval = setInterval(() => {
+      const interval = setInterval(() => {
         reloadCertificates(interval);
       }, config.reload_certificates.interval_ms);
     });
 
-    const httpsServer = https.createServer(
-      {
-        cert: fs.readFileSync(`${config.http_tls.cert}`),
-        key: fs.readFileSync(`${config.http_tls.key}`),
-        ca: fs.readFileSync(`${config.http_tls.ca}`),
-        rejectUnauthorized: true,
-        requestCert: true,
-      },
-      app
-    );
-
     // start HTTPS app
     httpsServer.listen(config.server_port.https, () => {
       logger.info(
-        `IotAgent HTTPS listening on port ${config.server_port.https}!`
+        `IotAgent HTTPS listening on port ${config.server_port.https}!`,
       );
     });
 
@@ -175,7 +175,7 @@ iotAgent
       // start HTTP app
       httpServer.listen(config.server_port.http, () => {
         logger.info(
-          `IotAgent HTTP listening on port ${config.server_port.http}!`
+          `IotAgent HTTP listening on port ${config.server_port.http}!`,
         );
       });
     }

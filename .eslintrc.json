@@ -6,14 +6,12 @@
   },
   "plugins": [
       "security",
-      "security-node",
-      "prettier"
+      "security-node"
   ],
   "extends": [
       "airbnb-base",
       "plugin:security/recommended",
-      "plugin:security-node/recommended",
-      "plugin:prettier/recommended"
+      "plugin:security-node/recommended"
   ],
   "rules": {
       /* the rule import/no-unresolved is needed to avoid problems with the codefactor */
@@ -31,7 +29,6 @@
               "maxBOF": 1,
               "maxEOF": 0
           }
-      ],
-      "prettier/prettier": "error"
+      ]
   }
 }
