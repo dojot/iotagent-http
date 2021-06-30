@@ -23,42 +23,6 @@ iotAgent
   .then(() => {
     logger.info("Succeeded to start the HTTP IoT Agent ");
 
-    // Handle device.create event
-    iotAgent.messenger.on(
-      "iotagent.device",
-      "device.create",
-      (tenant, event) => {
-        logger.debug(
-          `Received device.create event ${event.data.label} for tenant ${tenant}.`
-        );
-      }
-    );
-
-    // Handle device.update event
-    iotAgent.messenger.on(
-      "iotagent.device",
-      "device.update",
-      (tenant, event) => {
-        logger.debug(
-          `Received device.update event ${event} for tenant ${tenant}.`
-        );
-      }
-    );
-
-    // Handle device.remove event
-    iotAgent.messenger.on(
-      "iotagent.device",
-      "device.remove",
-      (tenant, event) => {
-        logger.debug(
-          `Received device.update event ${event} for tenant ${tenant}.`
-        );
-      }
-    );
-
-    // force device.create events for devices created before starting the iotagent
-    iotAgent.messenger.generateDeviceCreateEventForActiveDevices();
-
     // HTTP app
     const app = express();
 
@@ -87,7 +51,7 @@ iotAgent
           !Object.hasOwnProperty.bind(clientCert.subject)("CN")
         ) {
           logger.error("Client certificate is invalid.");
-          res.status(400).send({ message: "Client certificate is invalid." });
+          res.status(401).send({ message: "Client certificate is invalid." });
           return;
         }
         if (body.hasOwnProperty("deviceId") && body.hasOwnProperty("tenant")) {
@@ -99,7 +63,7 @@ iotAgent
             logger.error(
               `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`
             );
-            res.status(400).send({
+            res.status(401).send({
               message: `Connection rejected for ${deviceId} due to invalid client certificate. The tenant and deviceid sent in the body are not the same as the certificate.`,
             });
             return;
@@ -116,7 +80,7 @@ iotAgent
               "Error trying to get tenant and deviceId in CN of certificate.",
               err
             );
-            res.status(400).send({
+            res.status(401).send({
               message: `Error trying to get tenant and deviceId in CN of certificate.`,
             });
           }
@@ -128,7 +92,7 @@ iotAgent
         ) {
           logger.error("Missing attribute tenant or deviceId");
           res
-            .status(400)
+            .status(401)
             .send({ message: "Missing attribute tenant or deviceId" });
           return;
         }
@@ -171,9 +135,8 @@ iotAgent
         logger.debug("Seted new secure context!");
         clearInterval(interval);
       } catch (err) {
-        attempts++;
-        if (attempts > config.reload_certificates.attempts) {
-          clearInterval(interval);
+        if (attempts < config.reload_certificates.attempts) {
+          attempts++;
         } else {
           logger.error("New secure context cannot be Seted!", err);
           process.kill(process.pid, "SIGTERM");
@@ -185,7 +148,7 @@ iotAgent
       logger.debug(`${eventType}: The ${filename} was modified!`);
       let interval = setInterval(() => {
         reloadCertificates(interval);
-      }, config.reload_certificates.interval);
+      }, config.reload_certificates.interval_ms);
     });
 
     const httpsServer = https.createServer(

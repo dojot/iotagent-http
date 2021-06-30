@@ -13,13 +13,20 @@ RUN apk --no-cache add \
   make \
   python3
 
-RUN apk add --no-cache --virtual .build-deps gcc zlib-dev libc-dev bsd-compat-headers py-setuptools bash
+RUN apk --no-cache add \
+  --virtual \
+  .build-deps \
+  gcc \
+  zlib-dev \
+  libc-dev \
+  bsd-compat-headers \
+  py-setuptools \
+  bash
 
 COPY package.json ./package.json
 COPY package-lock.json ./package-lock.json
 
 RUN npm install --production
-
 
 FROM node:12.21.0-alpine
 WORKDIR /opt/nodejs

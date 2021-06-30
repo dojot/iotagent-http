@@ -1,6 +1,6 @@
 # Example
 
-This example is intended to start an environment for testing message publishing to dojot using iotagent-http using HTTPS
+This example shows how to run an environment for testing message publishing to dojot through iotagent-http with HTTPS.
 
 To run this example, type:
 
@@ -21,7 +21,7 @@ On Debian-based Linux distributions, you can install these prerequisites by runn
 
 ## Getting access token
 
-All requests must contain a valid access token. You can generate a new token by sending the following request:
+To get a new token, send the following request:
 
 ```sh
   JWT=$(curl -s -X POST http://localhost:8000/auth \
@@ -62,7 +62,7 @@ curl -X POST http://localhost:8000/template \
 }'
 ```
 
-This request should give back this message:
+The request should give back a message like this one:
 
 ```sh
   {
@@ -112,7 +112,7 @@ This request should give back this message:
   }
 ```
 
-To create a template based on it, send the following request to dojot:
+To create a device based on template, send the following request to dojot:
 
 ```sh
   curl -X POST http://localhost:8000/device \
@@ -177,7 +177,7 @@ Which should give back:
 
 ## Generate certificates
 
-First open the certreq:
+Firstly, get the certreq tool:
 
 ```sh
   git clone https://github.com/dojot/dojot.git
@@ -186,7 +186,7 @@ First open the certreq:
   cd tools/certreq
 ```
 
-Run the script. Use the device id created earlier.
+Run the script with the device id obtained in the previous steps:
 
 ```sh
   ./bin/certreq.sh \
@@ -199,7 +199,7 @@ Run the script. Use the device id created earlier.
 
 ## Publish message
 
-Use the following command passed the path of the ca, certificate and key:
+Run the following command with the certificate paths:
 
 ```sh
   curl -X POST \
@@ -231,7 +231,7 @@ In the browser go to http://localhost:9090/topic/admin.device-data/messages and 
 
 ## Notes
 
-- If it does not receive a timestamp or receives an invalid timestamp, it uses the current timestamp.
+- If a timestamp is not part of the message sent by a device, it will be added by the iot-agent http.
 - Invalid values ​​for "ALLOW_UNSECURED_MODE" will be considered false. To enable set to "true".
 - With HTTP the tenant and device id in the body are mandatory, with HTTPS they are optional, but if both are passed they must match the cname.
 - In the x509-identity-mgmt service be sure to set the X509IDMGMT_CERTIFICATE_CHECK_SUBJECTDN variable to "true", if it is passed the certificate cname will be tenant:device, otherwise the HTTPS request will not work

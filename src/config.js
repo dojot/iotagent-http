@@ -32,7 +32,7 @@ config.allow_unsecured_mode = unsecured_mode(process.env.ALLOW_UNSECURED_MODE);
 
 config.reload_certificates = {
   attempts: process.env.RELOAD_CERTIFICATES_ATTEMPTS || 10,
-  interval: process.env.RELOAD_CERTIFICATES_INTERVAL || 1000,
+  interval_ms: process.env.RELOAD_CERTIFICATES_INTERVAL_MS || 1000,
 };
 
 config.http_cert_directory = process.env.HTTP_CERT_DIRECTORY || "/certs";
