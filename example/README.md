@@ -207,7 +207,7 @@ Run the following command with the certificate paths:
     -H 'content-type: application/json' \
     -d '{
     "tenant": "admin",
-    "deviceId": <deviceId>,
+    "deviceId": "<deviceId>",
     "readings": [
       {
         "timestamp": "2021-06-16T09:32:01.683000Z",

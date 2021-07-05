@@ -30,8 +30,8 @@ services:
     environment:
       DOJOT_MANAGEMENT_USER: 'data-broker'
       KAFKA_GROUP_ID: 'data-broker-group'
-      SERVICE_PORT: ${DATA_BROKER_SERVICE_PORT}
-      DATA_BROKER_URL: 'http://data-broker:${DATA_BROKER_SERVICE_PORT}'
+      SERVICE_PORT: 80
+      DATA_BROKER_URL: 'http://data-broker:80'
       LOG_LEVEL: 'info'
       KAFKA_NUM_PARTITIONS: 1
       KAFKA_REPLICATION_FACTOR: 1
@@ -414,14 +414,15 @@ services:
         max-file: '5'
 
   iotagent-http:
-    image: iotagent-http
+    build:
+      context: ./../../
+      dockerfile: ./Dockerfile
     depends_on:
       - kafka
       - data-broker
       - auth
       - iotagent-http-cert-sidecar
       - device-manager
-
     ports:
       - 8080:3124
     restart: always
