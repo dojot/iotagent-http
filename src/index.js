@@ -35,12 +35,6 @@ iotAgent
       const { body } = req;
       let tenant;
       let deviceId;
-      let readings;
-
-      if (!Object.prototype.hasOwnProperty.call(body, 'readings')) {
-        res.status(400).send({ message: 'Missing attribute readings' });
-        return;
-      }
 
       if (req.socket instanceof tls.TLSSocket) {
         // retrieve certificates from the request ( in der format )
@@ -53,10 +47,12 @@ iotAgent
           res.status(401).send({ message: 'Client certificate is invalid.' });
           return;
         }
-        if (Object.prototype.hasOwnProperty.call(body, 'deviceId') && Object.prototype.hasOwnProperty.call(body, 'tenant')) {
+        if (
+          Object.prototype.hasOwnProperty.call(body, 'deviceId')
+          && Object.prototype.hasOwnProperty.call(body, 'tenant')
+        ) {
           deviceId = body.deviceId;
           tenant = body.tenant;
-          readings = body.readings;
           // validate if the message belongs to same device than certificate
           if (clientCert.subject.CN !== `${tenant}:${deviceId}`) {
             logger.error(
@@ -68,7 +64,6 @@ iotAgent
             return;
           }
         } else {
-          readings = body.readings;
           const cn = clientCert.subject.CN;
           try {
             const cnArray = cn.split(':');
@@ -98,8 +93,13 @@ iotAgent
 
         deviceId = body.deviceId;
         tenant = body.tenant;
-        readings = body.readings;
       }
+
+      if (!Object.prototype.hasOwnProperty.call(body, 'readings')) {
+        res.status(400).send({ message: 'Missing attribute readings' });
+        return;
+      }
+      const { readings } = body;
 
       readings.forEach((reading) => {
         const newReading = reading;
@@ -114,7 +114,11 @@ iotAgent
 
         msg.device = deviceId;
 
-        logger.debug(`${deviceId}, ${tenant}, ${JSON.stringify(msg)}, ${JSON.stringify({ ...metadata })}`);
+        logger.debug(
+          `${deviceId}, ${tenant}, ${JSON.stringify(msg)}, ${JSON.stringify({
+            ...metadata,
+          })}`,
+        );
 
         // send data to dojot internal services
         iotAgent.updateAttrs(deviceId, tenant, msg, { ...metadata });

@@ -168,7 +168,7 @@ Which should give back:
            }
           ]
         },
-        "id": "0998", # <-- this is the device-id
+        '<deviceId>', # <-- this is the device-id
         "label": "device_0"
       }
     ]
