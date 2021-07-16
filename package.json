@@ -1,0 +1,33 @@
+{
+  "name": "iotagent-http",
+  "version": "1.0.0",
+  "description": "IoTAgent to receive messages from devices via HTTP and forward them to the dojot messaging system.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check-licenses": "apache2-license-checker",
+    "lint": "eslint --ext .js .",
+    "lint:fix": "eslint --fix --ext .js .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dojot",
+    "iotagent",
+    "http"
+  ],
+  "author": "Gilmaicor",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@dojot/dojot-module-logger": "^0.1.0",
+    "@dojot/iotagent-nodejs": "^2.1.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@bbc/apache2-license-checker": "^1.1.4",
+    "eslint": "^7.10.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-security-node": "^1.0.14"
+  }
+}
