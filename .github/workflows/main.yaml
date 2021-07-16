@@ -28,7 +28,6 @@ jobs:
     - name: npm check licenses
       run: |
         npm ci
-        npm install
         npm run check-licenses
 
   docker-hub:
