@@ -2,7 +2,7 @@ FROM node:12.21.0-alpine AS base
 
 WORKDIR /opt/nodejs
 
-RUN apk add --no-cache \
+RUN apk --no-cache add \
   bash \
   g++ \
   ca-certificates \
@@ -11,9 +11,9 @@ RUN apk add --no-cache \
   cyrus-sasl-dev \
   openssl-dev \
   make \
-  python3
-
-RUN apk add --no-cache --virtual \
+  python3 \
+  && \
+  apk add --no-cache --virtual \
   .build-deps \
   gcc \
   zlib-dev \
