@@ -7,31 +7,31 @@ on:
   pull_request:
 
 jobs:
-  npm-check-licenses:
-    name: Npm Check Licenses
-    # If the commit message contains 'ci skip', it is not necessary to run this job
-    if: contains(github.event.head_commit.message, 'ci skip') == false
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        node-version: [8.x]
-    steps:
+#   npm-check-licenses:
+#     name: Npm Check Licenses
+#     # If the commit message contains 'ci skip', it is not necessary to run this job
+#     if: contains(github.event.head_commit.message, 'ci skip') == false
+#     runs-on: ubuntu-18.04
+#     strategy:
+#       matrix:
+#         node-version: [8.x]
+#     steps:
 
-    - name: checkout
-      uses: actions/checkout@v1
+#     - name: checkout
+#       uses: actions/checkout@v1
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+#     - name: Use Node.js ${{ matrix.node-version }}
+#       uses: actions/setup-node@v1
+#       with:
+#         node-version: ${{ matrix.node-version }}
 
-    - name: npm check licenses
-      run: |
-        npm ci
-        npm run check-licenses
+#     - name: npm check licenses
+#       run: |
+#         npm ci
+#         npm run check-licenses
 
   docker-hub:
-    needs: npm-check-licenses
+    # needs: npm-check-licenses
     name: Build and Publish image to DockerHub
     runs-on: ubuntu-latest
     # If this is a PR, it won't run
