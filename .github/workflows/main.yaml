@@ -8,7 +8,7 @@ on:
 
 jobs:
   npm-check-licenses:
-    name: Npm Build and Check Licenses
+    name: Npm Check Licenses
     # If the commit message contains 'ci skip', it is not necessary to run this job
     if: contains(github.event.head_commit.message, 'ci skip') == false
     runs-on: ubuntu-18.04
@@ -27,6 +27,8 @@ jobs:
 
     - name: npm check licenses
       run: |
+        npm ci
+        npm install
         npm run check-licenses
 
   docker-hub:
