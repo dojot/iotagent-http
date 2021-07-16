@@ -1,0 +1,7 @@
+{
+    "exceptions": {
+      "type-fest@0.20.2": {
+        "reason": "MIT and/or CC0-1.0 are compatible with Apache-2.0"
+      }
+    }
+  }
