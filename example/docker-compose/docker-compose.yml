@@ -65,11 +65,12 @@ services:
       DBPASS: devm
       LOG_LEVEL: INFO
     depends_on:
-      - postgres
-      - kafka
-      - data-broker
-      - device-manager-redis
-    depends_on:
+      kafka:
+        condition: service_started
+      data-broker:
+        condition: service_started
+      device-manager-redis:
+        condition: service_started
       postgres:
         condition: service_healthy
     logging:
@@ -133,7 +134,7 @@ services:
 
   # Run any new migrations and Finish running any pending migrations after 'up'.
   kong-migrations-up:
-    image:  dojot/kong:v0.7.0-rc.1
+    image: dojot/kong:v0.7.0-rc.1
     command: kong migrations up && kong migrations finish
     depends_on:
       postgres:
@@ -225,7 +226,7 @@ services:
     environment:
       AUTH_DB_HOST: "postgres"
       AUTH_DB_USER: "auth"
-      AUTH_DB_PWD:  "auth"
+      AUTH_DB_PWD: "auth"
       AUTH_KONG_URL: "http://apigw:8001"
       AUTH_CACHE_HOST: "auth-redis"
       # This is used to select the type of cache to be used.
@@ -376,11 +377,11 @@ services:
       options:
         max-size: 20m
         max-file: '5'
-  
+
   kafdrop:
     image: obsidiandynamics/kafdrop
     depends_on:
-        - kafka
+      - kafka
     restart: always
     environment:
       KAFKA_BROKERCONNECT: kafka:9092

@@ -25,8 +25,8 @@ HTTPS request:
   POST /iotagent/readings/ \
     -H 'content-type: application/json' \
     -d '{
-    "deviceId": "anyTenant",
-    "tenant": "exemple",
+    "deviceId": "anyDeviceID",
+    "tenant": "anyTenant",
     "readings": [
       {
         "timestamp": "2021-06-16T09:32:01.683000Z",

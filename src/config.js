@@ -26,7 +26,7 @@ config.server_port = {
   https: zeroToDisabled(process.env.SERVER_PORT_HTTPS, 3124),
 };
 
-config.allow_unsecuredMode = unsecuredMode(process.env.ALLOW_unsecuredMode);
+config.allow_unsecured_mode = unsecuredMode(process.env.ALLOW_UNSECURED_MODE);
 
 config.reload_certificates = {
   attempts: process.env.RELOAD_CERTIFICATES_ATTEMPTS || 10,
