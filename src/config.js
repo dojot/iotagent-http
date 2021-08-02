@@ -1,6 +1,6 @@
 
 /* private */
-const unsecuredMode = (mode) => (mode || false) && (mode.toLowerCase().trim() === 'true' || Number(mode) > 0);
+const parseBoolean = (value) => (value || false) && (value.toLowerCase().trim() === 'true' || Number(value) > 0);
 
 const zeroToDisabled = (envValue, defaultValue) => {
   if (envValue === 0 || envValue === '0') {
@@ -10,6 +10,8 @@ const zeroToDisabled = (envValue, defaultValue) => {
   }
   return defaultValue;
 };
+
+const checkUndefined = (value) => typeof value === 'undefined';
 
 /* public */
 const config = {};
@@ -26,7 +28,7 @@ config.server_port = {
   https: zeroToDisabled(process.env.SERVER_PORT_HTTPS, 3124),
 };
 
-config.allow_unsecured_mode = unsecuredMode(process.env.ALLOW_UNSECURED_MODE);
+config.allow_unsecured_mode = parseBoolean(process.env.ALLOW_UNSECURED_MODE);
 
 config.reload_certificates = {
   attempts: process.env.RELOAD_CERTIFICATES_ATTEMPTS || 10,
@@ -36,5 +38,8 @@ config.reload_certificates = {
 config.http_cert_directory = process.env.HTTP_CERT_DIRECTORY || '/certs';
 
 config.log_level = process.env.LOG_LEVEL || 'info';
+
+config.request_cert = checkUndefined(process.env.REQUEST_CERT)
+  || parseBoolean(process.env.REQUEST_CERT);
 
 module.exports = config;

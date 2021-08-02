@@ -36,7 +36,7 @@ iotAgent
       let tenant;
       let deviceId;
 
-      if (req.socket instanceof tls.TLSSocket) {
+      if (req.socket instanceof tls.TLSSocket && config.request_cert) {
         // retrieve certificates from the request ( in der format )
         const clientCert = req.socket.getPeerCertificate();
         if (
@@ -134,7 +134,7 @@ iotAgent
         key: fs.readFileSync(`${config.http_tls.key}`),
         ca: fs.readFileSync(`${config.http_tls.ca}`),
         rejectUnauthorized: true,
-        requestCert: true,
+        requestCert: config.request_cert,
       },
       app,
     );
