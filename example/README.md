@@ -235,3 +235,4 @@ In the browser go to http://localhost:9090/topic/admin.device-data/messages and 
 - Invalid values ​​for "ALLOW_UNSECURED_MODE" will be considered false. To enable set to "true".
 - With HTTP the tenant and device id in the body are mandatory, with HTTPS they are optional, but if both are passed they must match the cname.
 - In the x509-identity-mgmt service be sure to set the X509IDMGMT_CERTIFICATE_CHECK_SUBJECTDN variable to "true", if it is passed the certificate cname will be tenant:device, otherwise the HTTPS request will not work
+- If REQUEST_CERT is false, the client must inform at least the certificate authority (ca) of Dojot.

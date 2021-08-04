@@ -426,6 +426,7 @@ services:
       - device-manager
     ports:
       - 8080:3124
+      - 8081:3123
     restart: always
     environment:
       SERVER_PORT_HTTP: 3123
@@ -437,6 +438,7 @@ services:
       HTTP_CERT_DIRECTORY: "/certs"
       ALLOW_UNSECURED_MODE: "true"
       LOG_LEVEL: "debug"
+      REQUEST_CERT: "false"
     volumes:
       - iotagent-http-cert-side-volume:/certs
     logging:
